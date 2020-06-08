@@ -12,7 +12,8 @@
         "bz2",
         "zlib",
         "curl",
-        "mcrypt"
+        "mcrypt",
+	"memcached"
     ],
     "PHP_MODULES": [],
     "PHP_MODULES_STRIP": true,
