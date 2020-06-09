@@ -1,5 +1,7 @@
 <?php
 
+namespace SimpleSAML\Module\ldap\Auth\Process;
+
 /**
  * Filter to add attributes to the identity by executing a query against an LDAP directory
  *
@@ -32,13 +34,6 @@
  * @author Remy Blom <remy.blom@hku.nl>
  * @package SimpleSAMLphp
  */
-
-namespace SimpleSAML\Module\ldap\Auth\Process;
-
-use SimpleSAML\Logger;
-use SimpleSAML\Module\ldap\Auth\Ldap;
-use Webmozart\Assert\Assert;
-
 class AttributeAddFromLDAP extends BaseFilter
 {
     /**
@@ -48,12 +43,14 @@ class AttributeAddFromLDAP extends BaseFilter
      */
     protected $search_attributes;
 
+
     /**
      * LDAP search filter to use in the LDAP query
      *
      * @var string
      */
     protected $search_filter;
+
 
     /**
      * What to do with attributes when the target already exists. Either replace, merge or add.
@@ -69,8 +66,57 @@ class AttributeAddFromLDAP extends BaseFilter
      * @param array $config Configuration information about this filter.
      * @param mixed $reserved For future use.
      */
-    public function __construct(array $config, $reserved)
+    public function __construct($config, $reserved)
     {
+        /*
+         * For backwards compatibility, check for old config names
+         * @TODO Remove after 2.0
+         */
+        if (isset($config['ldap_host'])) {
+            $config['ldap.hostname'] = $config['ldap_host'];
+        }
+        if (isset($config['ldap_port'])) {
+            $config['ldap.port'] = $config['ldap_port'];
+        }
+        if (isset($config['ldap_bind_user'])) {
+            $config['ldap.username'] = $config['ldap_bind_user'];
+        }
+        if (isset($config['ldap_bind_pwd'])) {
+            $config['ldap.password'] = $config['ldap_bind_pwd'];
+        }
+        if (isset($config['userid_attribute'])) {
+            $config['attribute.username'] = $config['userid_attribute'];
+        }
+        if (isset($config['ldap_search_base_dn'])) {
+            $config['ldap.basedn'] = $config['ldap_search_base_dn'];
+        }
+        if (isset($config['ldap_search_filter'])) {
+            $config['search.filter'] = $config['ldap_search_filter'];
+        }
+        if (isset($config['ldap_search_attribute'])) {
+            $config['search.attribute'] = $config['ldap_search_attribute'];
+        }
+        if (isset($config['new_attribute_name'])) {
+            $config['attribute.new'] = $config['new_attribute_name'];
+        }
+
+        /*
+         * Remove the old config names
+         * @TODO Remove after 2.0
+         */
+        unset(
+            $config['ldap_host'],
+            $config['ldap_port'],
+            $config['ldap_bind_user'],
+            $config['ldap_bind_pwd'],
+            $config['userid_attribute'],
+            $config['ldap_search_base_dn'],
+            $config['ldap_search_filter'],
+            $config['ldap_search_attribute'],
+            $config['new_attribute_name']
+        );
+
+        // Now that we checked for BC, run the parent constructor
         parent::__construct($config, $reserved);
 
         // Get filter specific config options
@@ -92,9 +138,10 @@ class AttributeAddFromLDAP extends BaseFilter
      * @param array &$request The current request
      * @return void
      */
-    public function process(array &$request): void
+    public function process(&$request)
     {
-        Assert::keyExists($request, 'Attributes');
+        assert(is_array($request));
+        assert(array_key_exists('Attributes', $request));
 
         $attributes = &$request['Attributes'];
 
@@ -103,10 +150,10 @@ class AttributeAddFromLDAP extends BaseFilter
         $arrSearch = [];
         $arrReplace = [];
         foreach ($attributes as $attr => $val) {
-            $arrSearch[] = '%' . $attr . '%';
+            $arrSearch[] = '%'.$attr.'%';
 
             if (strlen($val[0]) > 0) {
-                $arrReplace[] = Ldap::escapeFilterValue($val[0]);
+                $arrReplace[] = \SimpleSAML\Auth\LDAP::escape_filter_value($val[0]);
             } else {
                 $arrReplace[] = '';
             }
@@ -116,15 +163,13 @@ class AttributeAddFromLDAP extends BaseFilter
         $filter = str_replace($arrSearch, $arrReplace, $this->search_filter);
 
         if (strpos($filter, '%') !== false) {
-            Logger::info(
-                'AttributeAddFromLDAP: There are non-existing attributes in the search filter. (' .
-                $this->search_filter . ')'
-            );
+            \SimpleSAML\Logger::info('AttributeAddFromLDAP: There are non-existing attributes in the search filter. ('.
+                $this->search_filter.')');
             return;
         }
 
         if (!in_array($this->attr_policy, ['merge', 'replace', 'add'], true)) {
-            Logger::warning("AttributeAddFromLDAP: 'attribute.policy' must be one of 'merge'," .
+            \SimpleSAML\Logger::warning("AttributeAddFromLDAP: 'attribute.policy' must be one of 'merge',".
                 "'replace' or 'add'.");
             return;
         }
@@ -134,7 +179,7 @@ class AttributeAddFromLDAP extends BaseFilter
             $ldap = $this->getLdap();
         } catch (\Exception $e) {
             // Added this warning in case $this->getLdap() fails
-            Logger::warning("AttributeAddFromLDAP: exception = " . $e);
+            \SimpleSAML\Logger::warning("AttributeAddFromLDAP: exception = ".$e);
             return;
         }
         // search for matching entries

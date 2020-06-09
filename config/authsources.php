@@ -55,17 +55,13 @@ $config = [
 
         // Give the user an option to save their username for future login attempts
         // And when enabled, what should the default be, to save the username or not
-        'remember.username.enabled' => FALSE,
-        'remember.username.checked' => FALSE,
-
-
-        // Ensure the External groups attribute in PAS ->  
-        //   Authentication and Enterprise SSO
+        'remember.username.enabled' => TRUE,
+        'remember.username.checked' => TRUE,
 
         'marissa:koala' => [
             'uid' => 'marissa@test.org',
             'eduPersonAffiliation' => ['member', 'marissa'],
-            'emailAddress' => 'marissa@test.org',
+            'emailAddress' => 'marissa@test.org'
         ],
 
         'marissa2:saml2' => [
@@ -92,7 +88,7 @@ $config = [
             'eduPersonAffiliation' => ['member', 'marissa5'],
             'emailAddress' => 'marissa5@test.org',
             'groups' => ['saml.user', 'saml.admin'],
-            'costCenter' => 'Sanford, NC',
+            'costCenter' => 'Denver,CO',
             'manager' => ['John the Sloth', 'Kari the Ant Eater'],
         ],
 
@@ -101,7 +97,7 @@ $config = [
             'eduPersonAffiliation' => ['member'],
             'emailAddress' => 'marissa6@test.org',
             'groups' => ['saml.user', 'saml.admin'],
-            'costCenter' => 'Palo Alto, CA',
+            'costCenter' => 'Denver,CO',
             'manager' => ['John the Sloth', 'Kari the Ant Eater'],
         ],
 
@@ -110,42 +106,18 @@ $config = [
             'eduPersonAffiliation' => ['member', 'user_only_for_invitations_test'],
             'emailAddress' => 'testinvite@test.org',
             'groups' => ['saml.user', 'saml.admin'],
-            'costCenter' => 'Palo Alto, CA',
+            'costCenter' => 'Denver,CO',
             'manager' => ['John the Sloth', 'Kari the Ant Eater'],
         ],
 
-        'admin:LetMeIn001%' => [
-            'uid' => 'admin@example.org',
+        'user:password' => [
+            'uid' => 'testuser@spring.security.saml',
             'eduPersonAffiliation' => ['member', 'user'],
-            'emailAddress' => ['admin@example.org'],
-            'groups' => ['saml.user', 'saml.admin'],
-            'costCenter' => 'Palo Alto, CA',
-            'manager' => ['John the Sloth', 'Kari the Ant Eater'],
-            'firstName' => 'admin',
-            'lastName' => 'koala',
+            'emailAddress' => 'testuser@spring.security.saml'
         ],
-
-        'usera:LetMeIn001%' => [
-            'uid' => 'usera@example.org',
-            'eduPersonAffiliation' => ['member', 'usera'],
-            'emailAddress' => 'usera@example.org',
-            'groups' => ['saml.user'],
-            'costCenter' => 'Palo Alto, CA',
-            'manager' => ['John the Sloth', 'Kari the Ant Eater'],
-            'firstName' => 'user',
-            'lastName' => 'a',
-        ],
-
-        'userb:LetMeIn001%' => [
-            'uid' => 'userb@spring.security.saml',
-            'eduPersonAffiliation' => ['member', 'userb'],
-            'emailAddress' => 'testuserb@spring.security.saml',
-            'groups' => ['saml.user'],
-            'costCenter' => 'Palo Alto, CA',
-            'manager' => ['John the Sloth', 'Kari the Ant Eater'],
-            'firstName' => 'user',
-            'lastName' => 'b',
-        ],
-
     ],
+
+
+
+
 ];

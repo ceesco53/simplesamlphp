@@ -1,5 +1,7 @@
 <?php
 
+namespace SimpleSAML\Module\ldap\Auth\Process;
+
 /**
  * This base LDAP filter class can be extended to enable real
  * filter classes direct access to the authsource ldap config
@@ -12,11 +14,6 @@
  * @author Remy Blom <remy.blom@hku.nl>
  * @package SimpleSAMLphp
  */
-
-namespace SimpleSAML\Module\ldap\Auth\Process;
-
-use SimpleSAML\Module\ldap\Auth\Ldap;
-
 abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
 {
     /**
@@ -28,6 +25,7 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
      */
     protected $attribute_map;
 
+
     /**
      * The base DN of the LDAP connection. Used when searching
      * the LDAP server.
@@ -35,6 +33,7 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
      * @var string|array
      */
     protected $base_dn;
+
 
     /**
      * The construct method will change the filter config into
@@ -45,13 +44,15 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
      */
     protected $config;
 
+
     /**
      * Instance, object of the ldap connection. Stored here to
      * be access later during processing.
      *
-     * @var \SimpleSAML\Module\ldap\Auth\Ldap|null
+     * @var \SimpleSAML\Auth\LDAP
      */
-    private $ldap = null;
+    private $ldap;
+
 
     /**
      * Many times a LDAP product specific query can be used to
@@ -63,6 +64,7 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
      */
     protected $product;
 
+
     /**
      * The class "title" used in logging and exception messages.
      * This should be prepended to the beginning of the message.
@@ -70,6 +72,7 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
      * @var string
      */
     protected $title = 'ldap:BaseFilter : ';
+
 
     /**
      * List of LDAP object types, used to determine the type of
@@ -89,7 +92,7 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
      * @param array &$config
      * @param mixed $reserved
      */
-    public function __construct(array &$config, $reserved)
+    public function __construct(&$config, $reserved)
     {
         parent::__construct($config, $reserved);
 
@@ -97,19 +100,19 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
         // This way if the class is extended the proper name is used
         $classname = get_class($this);
         $classname = explode('_', $classname);
-        $this->title = 'ldap:' . end($classname) . ' : ';
+        $this->title = 'ldap:'.end($classname).' : ';
 
         // Log the construction
         \SimpleSAML\Logger::debug(
-            $this->title . 'Creating and configuring the filter.'
+            $this->title.'Creating and configuring the filter.'
         );
 
         // If an authsource was defined (an not empty string)...
         if (isset($config['authsource']) && $config['authsource']) {
             // Log the authsource request
             \SimpleSAML\Logger::debug(
-                $this->title . 'Attempting to get configuration values from authsource [' .
-                $config['authsource'] . ']'
+                $this->title.'Attempting to get configuration values from authsource ['.
+                $config['authsource'].']'
             );
 
             // Get the authsources file, which should contain the config
@@ -118,20 +121,20 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
             // Verify that the authsource config exists
             if (!$authsource->hasValue($config['authsource'])) {
                 throw new \SimpleSAML\Error\Exception(
-                    $this->title . 'Authsource [' . $config['authsource'] .
+                    $this->title.'Authsource ['.$config['authsource'].
                     '] defined in filter parameters not found in authsources.php'
                 );
             }
 
             // Get just the specified authsource config values
-            $authsource = $authsource->getArray($config['authsource']);
+            $authsource = $authsource->getConfigItem($config['authsource']);
+            $authsource = $authsource->toArray();
 
             // Make sure it is an ldap source
             // TODO: Support ldap:LDAPMulti, if possible
-            $ldapsources = ['ldap:Ldap', 'authX509:X509userCert'];
-            if (isset($authsource[0]) && !in_array($authsource[0], $ldapsources)) {
+            if (@$authsource[0] != 'ldap:LDAP') {
                 throw new \SimpleSAML\Error\Exception(
-                    $this->title . 'Authsource [' . $config['authsource'] .
+                    $this->title.'Authsource ['.$config['authsource'].
                     '] specified in filter parameters is not an ldap:LDAP type'
                 );
             }
@@ -171,21 +174,18 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
                     $authconfig['ldap.password']   = $authsource['search.password'];
                 }
                 // Only set the username attribute if the authsource specifies one attribute
-                if (
-                    isset($authsource['search.attributes'])
-                    && is_array($authsource['search.attributes'])
-                    && count($authsource['search.attributes']) == 1
-                ) {
+                if (isset($authsource['search.attributes']) && is_array($authsource['search.attributes'])
+                     && count($authsource['search.attributes']) == 1) {
                     $authconfig['attribute.username'] = reset($authsource['search.attributes']);
                 }
             }
             // only set when priv.read = true
             if (isset($authsource['priv.read']) && $authsource['priv.read']) {
                 if (isset($authsource['priv.username'])) {
-                    $authconfig['ldap.username'] = $authsource['priv.username'];
+                    $authconfig['ldap.username']   = $authsource['priv.username'];
                 }
                 if (isset($authsource['priv.password'])) {
-                    $authconfig['ldap.password'] = $authsource['priv.password'];
+                    $authconfig['ldap.password']   = $authsource['priv.password'];
                 }
             }
 
@@ -195,8 +195,8 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
 
             // Authsource complete
             \SimpleSAML\Logger::debug(
-                $this->title . 'Retrieved authsource [' . $config['authsource'] .
-                '] configuration values: ' . $this->varExport($authconfig)
+                $this->title.'Retrieved authsource ['.$config['authsource'].
+                '] configuration values: '.$this->var_export($authconfig)
             );
         }
 
@@ -216,9 +216,9 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
 
         // Log the member values retrieved above
         \SimpleSAML\Logger::debug(
-            $this->title . 'Configuration values retrieved;' .
-            ' BaseDN: ' . $this->varExport($this->base_dn) .
-            ' Product: ' . $this->varExport($this->product)
+            $this->title.'Configuration values retrieved;'.
+            ' BaseDN: '.$this->var_export($this->base_dn).
+            ' Product: '.$this->var_export($this->product)
         );
 
         // Setup the attribute map which will be used to search LDAP
@@ -234,7 +234,7 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
 
         // Log the attribute map
         \SimpleSAML\Logger::debug(
-            $this->title . 'Attribute map created: ' . $this->varExport($this->attribute_map)
+            $this->title.'Attribute map created: '.$this->var_export($this->attribute_map)
         );
 
         // Setup the object type map which is used to determine a DNs' type
@@ -245,19 +245,18 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
 
         // Log the type map
         \SimpleSAML\Logger::debug(
-            $this->title . 'Type map created: ' . $this->varExport($this->type_map)
+            $this->title.'Type map created: '.$this->var_export($this->type_map)
         );
     }
-
 
     /**
      * Getter for the LDAP connection object. Created this getter
      * rather than setting in the constructor to avoid unnecessarily
      * connecting to LDAP when it might not be needed.
      *
-     * @return \SimpleSAML\Module\ldap\Auth\Ldap
+     * @return \SimpleSAML\Auth\LDAP
      */
-    protected function getLdap(): Ldap
+    protected function getLdap()
     {
         // Check if already connected
         if (isset($this->ldap)) {
@@ -276,25 +275,24 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
 
         // Log the LDAP connection
         \SimpleSAML\Logger::debug(
-            $this->title . 'Connecting to LDAP server;' .
-            ' Hostname: ' . $hostname .
-            ' Port: ' . $port .
-            ' Enable TLS: ' . ($enable_tls ? 'Yes' : 'No') .
-            ' Debug: ' . ($debug ? 'Yes' : 'No') .
-            ' Referrals: ' . ($referrals ? 'Yes' : 'No') .
-            ' Timeout: ' . $timeout .
-            ' Username: ' . $username .
-            ' Password: ' . (empty($password) ? '' : '********')
+            $this->title.'Connecting to LDAP server;'.
+            ' Hostname: '.$hostname.
+            ' Port: '.$port.
+            ' Enable TLS: '.($enable_tls ? 'Yes' : 'No').
+            ' Debug: '.($debug ? 'Yes' : 'No').
+            ' Referrals: '.($referrals ? 'Yes' : 'No').
+            ' Timeout: '.$timeout.
+            ' Username: '.$username.
+            ' Password: '.(empty($password) ? '' : '********')
         );
 
         // Connect to the LDAP server to be queried during processing
-        $this->ldap = new Ldap($hostname, $enable_tls, $debug, $timeout, $port, $referrals);
+        $this->ldap = new \SimpleSAML\Auth\LDAP($hostname, $enable_tls, $debug, $timeout, $port, $referrals);
         $this->ldap->bind($username, $password);
 
         // All done
         return $this->ldap;
     }
-
 
     /**
      * Local utility function to get details about a variable,
@@ -305,7 +303,7 @@ abstract class BaseFilter extends \SimpleSAML\Auth\ProcessingFilter
      * @param mixed $value
      * @return string
      */
-    protected function varExport($value): string
+    protected function var_export($value)
     {
         if (is_array($value)) {
             // remove sensitive data

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Yes check by Gregory Maxwell. Copyright 2005. GFDL-1.2 -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.0"
+   x="0.0000000"
+   y="0.0000000"
+   width="48"
+   height="48"
+   id="Yes_check"
+   sodipodi:version="0.32"
+   inkscape:version="0.47pre4 r22446"
+   sodipodi:docname="Yes_check.svg">
+  <metadata
+     id="metadata1375">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs1373">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 300 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="600 : 300 : 1"
+       inkscape:persp3d-origin="300 : 200 : 1"
+       id="perspective11" />
+    <linearGradient
+       id="linearGradient2250">
+      <stop
+         style="stop-color:#008700;stop-opacity:1;"
+         offset="0"
+         id="stop2252" />
+      <stop
+         style="stop-color:#006f00;stop-opacity:1;"
+         offset="1"
+         id="stop2254" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2250"
+       id="radialGradient2256"
+       cx="300"
+       cy="300"
+       fx="300"
+       fy="300"
+       r="292.31146"
+       gradientTransform="matrix(0.07420101,0,0,0.07292327,1.7397062,0.97706747)"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-height="1126"
+     inkscape:window-width="1920"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     inkscape:zoom="9.9733333"
+     inkscape:cx="53.34853"
+     inkscape:cy="21.072423"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:current-layer="Yes_check"
+     showgrid="false"
+     inkscape:window-maximized="1" />
+  <path
+     d="m 2.3101995,30.61653 c 0,0 8.3051215,9.745333 10.2544515,13.553827 1.351588,2.640644 6.225941,3.444746 7.349029,0 C 22.979479,34.767018 34.953572,12.329414 45.208023,4.4676676 47.33264,1.7360221 41.995279,0.60843507 37.688077,2.4167645 31.196523,5.1421761 18.953218,25.950946 16.666425,30.958364 13.419202,31.812882 10.00103,25.48932 10.00103,25.48932 l -7.6908305,5.12721 z"
+     style="fill:url(#radialGradient2256);fill-opacity:1;fill-rule:evenodd;stroke:none"
+     id="check"
+     sodipodi:nodetypes="csscsccc" />
+</svg>

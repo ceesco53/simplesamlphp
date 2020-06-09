@@ -2,9 +2,6 @@
 
 namespace SimpleSAML\Module\ldap\Auth\Source;
 
-use SimpleSAML\Module\ldap\ConfigHelper;
-use Webmozart\Assert\Assert;
-
 /**
  * LDAP authentication source.
  *
@@ -16,7 +13,7 @@ use Webmozart\Assert\Assert;
  * @package SimpleSAMLphp
  */
 
-class Ldap extends \SimpleSAML\Module\core\Auth\UserPassBase
+class LDAP extends \SimpleSAML\Module\core\Auth\UserPassBase
 {
     /**
      * A LDAP configuration object.
@@ -30,14 +27,17 @@ class Ldap extends \SimpleSAML\Module\core\Auth\UserPassBase
      * @param array $info  Information about this authentication source.
      * @param array $config  Configuration.
      */
-    public function __construct(array $info, array $config)
+    public function __construct($info, $config)
     {
+        assert(is_array($info));
+        assert(is_array($config));
+
         // Call the parent constructor first, as required by the interface
         parent::__construct($info, $config);
 
-        $this->ldapConfig = new ConfigHelper(
+        $this->ldapConfig = new \SimpleSAML\Module\ldap\ConfigHelper(
             $config,
-            'Authentication source ' . var_export($this->authId, true)
+            'Authentication source '.var_export($this->authId, true)
         );
     }
 
@@ -50,8 +50,11 @@ class Ldap extends \SimpleSAML\Module\core\Auth\UserPassBase
      * param array $sasl_arg  Associative array of SASL options
      * @return array  Associative array with the users attributes.
      */
-    protected function login(string $username, string $password, array $sasl_args = null): array
+    protected function login($username, $password, array $sasl_args = null)
     {
+        assert(is_string($username));
+        assert(is_string($password));
+
         return $this->ldapConfig->login($username, $password, $sasl_args);
     }
 }

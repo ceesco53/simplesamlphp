@@ -14,8 +14,8 @@ $metadata['__DYNAMIC:1__'] = [
     'host' => '__DEFAULT__',
 
     // X.509 key and certificate. Relative to the cert directory.
-    'privatekey' => 'simplesamlphp.cfapps-06.haas-59.pez.pivotal.io.pem',
-    'certificate' => 'simplesamlphp.cfapps-06.haas-59.pez.pivotal.io.crt',
+    'privatekey' => 'server.pem',
+    'certificate' => 'server.crt',
 
     /*
      * Authentication source to use. Must be one that is configured in
@@ -24,17 +24,13 @@ $metadata['__DYNAMIC:1__'] = [
     'auth' => 'example-userpass',
 
     /* Uncomment the following to use the uri NameFormat on attributes. */
+    /*
     'attributes.NameFormat' => 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
     'authproc' => [
-        // Make email available as a NameID
-        3 => [
-            'class' => 'saml:AttributeNameID',
-            'attribute' => 'emailAddress',
-            'Format' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
-        ],
         // Convert LDAP names to oids.
         100 => ['class' => 'core:AttributeMap', 'name2oid'],
     ],
+    */
 
     /*
      * Uncomment the following to specify the registration information in the

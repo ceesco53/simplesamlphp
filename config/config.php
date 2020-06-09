@@ -122,8 +122,8 @@ $config = [
      * The email address will be used as the recipient address for error reports, and
      * also as the technical contact in generated metadata.
      */
-    'technicalcontact_name' => 'John Nelson',
-    'technicalcontact_email' => 'jonelson@pivotal.io',
+    'technicalcontact_name' => 'Filip Hanik',
+    'technicalcontact_email' => 'fhanik@pivotal.io',
 
     /*
      * The timezone of the server. This option should be set to the timezone you want
@@ -155,7 +155,7 @@ $config = [
      * Options: [syslog,file,errorlog]
      *
      */
-    'logging.level' => SimpleSAML\Logger::INFO,
+    'logging.level' => SimpleSAML\Logger::NOTICE,
     'logging.handler' => 'syslog',
 
     /*

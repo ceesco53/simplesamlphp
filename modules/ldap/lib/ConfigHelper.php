@@ -1,5 +1,7 @@
 <?php
 
+namespace SimpleSAML\Module\ldap;
+
 /**
  * LDAP authentication source configuration parser.
  *
@@ -9,116 +11,109 @@
  * @package SimpleSAMLphp
  */
 
-namespace SimpleSAML\Module\ldap;
-
-use SimpleSAML\Configuration;
-use SimpleSAML\Error;
-use SimpleSAML\Logger;
-use Webmozart\Assert\Assert;
-
 class ConfigHelper
 {
     /**
      * String with the location of this configuration.
      * Used for error reporting.
      */
-    protected $location;
+    private $location;
 
     /**
      * The hostname of the LDAP server.
      */
-    protected $hostname;
+    private $hostname;
 
     /**
      * Whether we should use TLS/SSL when contacting the LDAP server.
      */
-    protected $enableTLS;
+    private $enableTLS;
 
     /**
      * Whether debug output is enabled.
      *
      * @var bool
      */
-    protected $debug;
+    private $debug;
 
     /**
      * The timeout for accessing the LDAP server.
      *
      * @var int
      */
-    protected $timeout;
+    private $timeout;
 
     /**
      * The port used when accessing the LDAP server.
      *
      * @var int
      */
-    protected $port;
+    private $port;
 
     /**
      * Whether to follow referrals
      */
-    protected $referrals;
+    private $referrals;
 
     /**
      * Whether we need to search for the users DN.
      */
-    protected $searchEnable;
+    private $searchEnable;
 
     /**
      * The username we should bind with before we can search for the user.
      */
-    protected $searchUsername;
+    private $searchUsername;
 
     /**
      * The password we should bind with before we can search for the user.
      */
-    protected $searchPassword;
+    private $searchPassword;
 
     /**
      * Array with the base DN(s) for the search.
      */
-    protected $searchBase;
+    private $searchBase;
 
     /**
      * The scope of the search.
      */
-    protected $searchScope;
+    private $searchScope;
 
     /**
      * Additional LDAP filter fields for the search
      */
-    protected $searchFilter;
+    private $searchFilter;
 
     /**
      * The attributes which should match the username.
      */
-    protected $searchAttributes;
+    private $searchAttributes;
 
     /**
      * The DN pattern we should use to create the DN from the username.
      */
-    protected $dnPattern;
+    private $dnPattern;
 
     /**
      * The attributes we should fetch. Can be NULL in which case we will fetch all attributes.
      */
-    protected $attributes;
+    private $attributes;
 
     /**
      * The user cannot get all attributes, privileged reader required
      */
-    protected $privRead;
+    private $privRead;
 
     /**
      * The DN we should bind with before we can get the attributes.
      */
-    protected $privUsername;
+    private $privUsername;
 
     /**
      * The password we should bind with before we can get the attributes.
      */
-    protected $privPassword;
+    private $privPassword;
 
 
     /**
@@ -127,12 +122,15 @@ class ConfigHelper
      * @param array $config  Configuration.
      * @param string $location  The location of this configuration. Used for error reporting.
      */
-    public function __construct(array $config, string $location)
+    public function __construct($config, $location)
     {
+        assert(is_array($config));
+        assert(is_string($location));
+
         $this->location = $location;
 
         // Parse configuration
-        $config = Configuration::loadFromArray($config, $location);
+        $config = \SimpleSAML\Configuration::loadFromArray($config, $location);
 
         $this->hostname = $config->getString('hostname');
         $this->enableTLS = $config->getBoolean('enable_tls', false);
@@ -178,14 +176,17 @@ class ConfigHelper
      * @param array $sasl_args  Array of SASL options for LDAP bind.
      * @return array  Associative array with the users attributes.
      */
-    public function login(string $username, string $password, array $sasl_args = null): array
+    public function login($username, $password, array $sasl_args = null)
     {
+        assert(is_string($username));
+        assert(is_string($password));
+
         if (empty($password)) {
-            Logger::info($this->location . ': Login with empty password disallowed.');
-            throw new Error\Error('WRONGUSERPASS');
+            \SimpleSAML\Logger::info($this->location.': Login with empty password disallowed.');
+            throw new \SimpleSAML\Error\Error('WRONGUSERPASS');
         }
 
-        $ldap = new Auth\Ldap(
+        $ldap = new \SimpleSAML\Auth\LDAP(
             $this->hostname,
             $this->enableTLS,
             $this->debug,
@@ -212,17 +213,16 @@ class ConfigHelper
                 $this->searchFilter,
                 $this->searchScope
             );
-
             if ($dn === null) {
                 /* User not found with search. */
-                Logger::info($this->location . ': Unable to find users DN. username=\'' . $username . '\'');
-                throw new Error\Error('WRONGUSERPASS');
+                \SimpleSAML\Logger::info($this->location.': Unable to find users DN. username=\''.$username.'\'');
+                throw new \SimpleSAML\Error\Error('WRONGUSERPASS');
             }
         }
 
         if (!$ldap->bind($dn, $password, $sasl_args)) {
-            Logger::info($this->location . ': ' . $username . ' failed to authenticate. DN=' . $dn);
-            throw new Error\Error('WRONGUSERPASS');
+            \SimpleSAML\Logger::info($this->location.': '.$username.' failed to authenticate. DN='.$dn);
+            throw new \SimpleSAML\Error\Error('WRONGUSERPASS');
         }
 
         // In case of SASL bind, authenticated and authorized DN may differ
@@ -245,7 +245,7 @@ class ConfigHelper
     /**
      * Search for a DN.
      *
-     * @param string|array|null $attribute
+     * @param string|array $attribute
      * The attribute name(s) searched for. If set to NULL, values from
      * configuration is used.
      * @param string $value
@@ -264,9 +264,9 @@ class ConfigHelper
      * - $allowZeroHits is FALSE and no result is found
      *
      */
-    public function searchfordn($attribute, string $value, bool $allowZeroHits): ?string
+    public function searchfordn($attribute, $value, $allowZeroHits)
     {
-        $ldap = new Auth\Ldap(
+        $ldap = new \SimpleSAML\Auth\LDAP(
             $this->hostname,
             $this->enableTLS,
             $this->debug,
@@ -275,7 +275,7 @@ class ConfigHelper
             $this->referrals
         );
 
-        if ($attribute === null) {
+        if ($attribute == null) {
             $attribute = $this->searchAttributes;
         }
 
@@ -302,13 +302,13 @@ class ConfigHelper
      * @return array
      * @throws \Exception
      */
-    public function getAttributes(string $dn, array $attributes = null): array
+    public function getAttributes($dn, $attributes = null)
     {
         if ($attributes == null) {
             $attributes = $this->attributes;
         }
 
-        $ldap = new Auth\Ldap(
+        $ldap = new \SimpleSAML\Auth\LDAP(
             $this->hostname,
             $this->enableTLS,
             $this->debug,
